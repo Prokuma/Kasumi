@@ -33,10 +33,10 @@ Prokuma, A Master Course Student, Nara Institute of Science and Technology
 Computer Architecture Laboratory, Nara Institute of Science and Technology
 
 ## Special Thanks
-Yasuhiko Nakashima, NAIST: Support of Zynq FPGA Board and Advice of How to Design
-Members of Arch. Lab.: Support of Designing KASUMI
-Kasumi Nakasu, Nijigasaki School Idol Club: Influenced by hers name
-Kanata Konoe, Nijigasaki School Idol Club: Support of Mental health
-Members of OPTiM Kyutech CSSE Office: Motivation of KASUMI
-Takaichi Yoshida, Kyutech CSSE: Motivation of Self-designed Processor
-Members of Composite Computer Club, Kyutech CSSE: Motivation of Continuing Computer Science
+- Yasuhiko Nakashima, NAIST: Support of Zynq FPGA Board and Advice of How to Design
+- Members of Arch. Lab.: Support of Designing KASUMI
+- Kasumi Nakasu, Nijigasaki School Idol Club: Influenced by hers name
+- Kanata Konoe, Nijigasaki School Idol Club: Support of Mental health
+- Members of OPTiM Kyutech CSSE Office: Motivation of KASUMI
+- Takaichi Yoshida, Kyutech CSSE: Motivation of Self-designed Processor
+- Members of Composite Computer Club, Kyutech CSSE: Motivation of Continuing Computer Science
