@@ -29,9 +29,6 @@ MIT License
 ## Written by
 Prokuma, A Master Course Student, Nara Institute of Science and Technology
 
-## This Project Supported by
-Computer Architecture Laboratory, Nara Institute of Science and Technology
-
 ## Special Thanks
 - Yasuhiko Nakashima, NAIST: Support of Zynq FPGA Board and Advice of How to Design
 - Members of Arch. Lab.: Support of Designing KASUMI
