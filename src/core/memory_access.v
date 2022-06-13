@@ -41,9 +41,6 @@ assign wb_pc_data = (in_mem_write_data == 12'h0) ? csr_trap_vec_data : (
     )
 );
 
-wire [31:0] wb_pc_data_f_mtvect = csr_trap_vec_data;
-wire [31:0] wb_pc_data_f_mepc = csr_exception_pc_data;
-
 always @(posedge clk) begin
     if (in_mem_command[0]) begin
         // sb/sh/sw

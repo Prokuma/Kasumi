@@ -61,7 +61,7 @@ wire jmp_f_b = (ex_command[5:3] != 3'b010) ? 1'b0 : (
     ((ex_command[2:0] == 3'b100) & lt_data_signed) |
     ((ex_command[2:0] == 3'b101) & ge_data_signed) |
     ((ex_command[2:0] == 3'b110) & lt_data_unsigned) |
-    ((ex_command[2:0] == 3'b110) & ge_data_unsigned)
+    ((ex_command[2:0] == 3'b111) & ge_data_unsigned)
 );
 
 wire [31:0] wb_pc_data_f_b = in_now_pc + in_mem_write_data;

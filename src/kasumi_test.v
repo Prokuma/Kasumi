@@ -156,7 +156,7 @@ csr csr(.wb_csr(wb_csr), .addr(csr_addr), .write_addr(write_csr_addr), .in_data(
         .out_data(csr_data), .out_trap_vec(csr_trap_vec_data), .out_exception_pc(csr_exception_pc_data));
 
 // TEST MEM
-wire [7:0] tohost;
+wire [47:0] tohost;
 wire is_wb_prog_mem_avaliable = (prog_mem_addr != data_mem_addr);
 
 test_mem prog_mem(.is_mem_write(is_wb_prog_mem_avaliable & is_mem_write), .addr(prog_mem_addr), .write_addr(out_mem_addr), .in_data(mem_mem_wb_data), .data(prog_mem_data), .tohost());
