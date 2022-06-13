@@ -25,6 +25,10 @@ always @(*) begin
 end
 
 initial begin
+    //$readmemh("hex/rv32mi-p-breakpoint.vh", memory);
+    //$readmemh("hex/rv32mi-p-csr.vh", memory);
+    //$readmemh("hex/rv32mi-p-illegal.vh", memory);
+
     //$readmemh("hex/rv32ui-p-add.vh", memory);
     //$readmemh("hex/rv32ui-p-addi.vh", memory);
     //$readmemh("hex/rv32ui-p-and.vh", memory);
@@ -63,7 +67,7 @@ initial begin
     //$readmemh("hex/rv32ui-p-sub.vh", memory);
     //$readmemh("hex/rv32ui-p-sw.vh", memory);
     //$readmemh("hex/rv32ui-p-xor.vh", memory);
-    $readmemh("hex/rv32ui-p-xori.vh", memory);jj
+    //$readmemh("hex/rv32ui-p-xori.vh", memory);
 end
 
 endmodule

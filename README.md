@@ -12,7 +12,6 @@ The name of processor was influenced by members of Nijigasaki School Idol Club. 
 - core: Core of KASUMI
 - cache: (Under Construction) Cache Memory
 - test_mem: Register File and Block RAM for Test
-- hex: Verilog Hex File for Test
 - kasumi.v: (Under Construction) Top of KASUMI
 - kasumi_test.v: Top of KASUMI for Test
 
