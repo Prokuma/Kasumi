@@ -187,15 +187,7 @@ always @(posedge clk) begin
                     data_0 <= rs1_data;
                 data_1 <= 32'b0;
                 mem_write_data[31:12] <= 20'b0;
-                if ((funct3 == 3'b000) & (imm_I == 12'd0)) begin
-                    mem_write_data[11:0] <= 12'h342;
-                end
-                else if ((funct3 == 3'b000) & (imm_I == 12'd1)) begin
-                    mem_write_data[11:0] <= 12'h342;
-                end
-                else begin
-                    mem_write_data[11:0] <= imm_I;
-                end
+                mem_write_data[11:0] <= imm_I;
                 reg_d <= rd;
             end
 

@@ -19,9 +19,6 @@ module memory_access (
     output [11:0] csr_addr,
     output [31:0] mem_addr,
     output reg is_mem_write,
-    output if_bubble,
-    output id_bubble,
-    output ex_bubble,
     output wb_pc,
     output reg wb_csr,
     output reg [11:0] out_csr_addr,
@@ -37,18 +34,12 @@ module memory_access (
 assign mem_addr = in_alu_out;
 assign csr_addr = in_mem_write_data[11:0];
 
-assign if_bubble = (in_mem_command == 5'b00010);
-assign id_bubble = (in_mem_command == 5'b00010);
-assign ex_bubble = (in_mem_command == 5'b00010);
 assign wb_pc = (in_mem_command == 5'b00010);
 assign wb_pc_data = (in_mem_write_data == 12'h0) ? csr_trap_vec_data : (
     (in_mem_write_data == 12'h1) ? csr_trap_vec_data : (
         (in_mem_write_data == 12'h302) ? csr_exception_pc_data : 12'h0
     )
 );
-
-wire [31:0] wb_pc_data_f_mtvect = csr_trap_vec_data;
-wire [31:0] wb_pc_data_f_mepc = csr_exception_pc_data;
 
 always @(posedge clk) begin
     if (in_mem_command[0]) begin
