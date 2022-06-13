@@ -28,8 +28,6 @@ module execute (
     input [31:0] in_mem_write_data, 
     input [31:0] in_now_pc,
 
-    output if_bubble,
-    output id_bubble,
     output wb_pc,
     output reg [4:0] out_mem_command,
     output reg [4:0] out_reg_d,
@@ -55,8 +53,6 @@ assign wb_pc_data = jmp_f_b ? wb_pc_data_f_b : (
         jmp_f_j ? wb_pc_data_f_j : 32'b0
     )
 );
-assign if_bubble = jmp_f_b | jmp_f_f | jmp_f_j;
-assign id_bubble = jmp_f_b | jmp_f_f | jmp_f_j;
 
 // beq/bge/begu/blt/bltu/bne
 wire jmp_f_b = (ex_command[5:3] != 3'b010) ? 1'b0 : (

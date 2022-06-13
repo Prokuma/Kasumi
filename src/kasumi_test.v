@@ -9,9 +9,9 @@ wire [31:0] data_mem_data;
 wire stop;
 wire [4:0] rs1_addr;
 wire [4:0] rs2_addr;
-wire if_bubble = if_bubble_f_mem | if_bubble_f_exe | wb_pc;
-wire id_bubble = id_bubble_f_mem | id_bubble_f_exe | wb_pc;
-wire ex_bubble = ex_bubble_f_mem | wb_pc_f_mem;
+wire if_bubble = wb_pc;
+wire id_bubble = wb_pc;
+wire ex_bubble = wb_pc_f_mem;
 wire wb_pc = wb_pc_f_ex | wb_pc_f_mem | wb_pc_f_hazard;
 wire [31:0] wb_pc_data = 
 wb_pc_f_mem ? wb_pc_data_f_mem : (
@@ -25,20 +25,19 @@ wire [31:0] wb_pc_data_f_mem;
 
 wire wb_pc_f_ex;
 wire wb_pc_f_mem;
-wire wb_pc_f_hazard = 
-    wb_pc_f_hazard_id_ex | wb_pc_f_hazard_id_mem | wb_pc_f_hazard_id_wb;
+wire wb_pc_f_hazard = wb_pc_f_hazard_id_ex | wb_pc_f_hazard_id_mem;
 wire wb_pc_f_hazard_id_ex = ((id_ex_reg_d == rs1_addr) | 
     (id_ex_reg_d == rs2_addr)) & (id_ex_reg_d != 5'b0);
-wire wb_pc_f_hazard_id_mem = ((ex_mem_reg_d == rs1_addr) |
-    (ex_mem_reg_d == rs2_addr)) & (ex_mem_reg_d != 5'b0);
-wire wb_pc_f_hazard_id_wb = ((mem_wb_reg_d == rs1_addr) |
-    (mem_wb_reg_d == rs2_addr)) & (mem_wb_reg_d != 5'b0);
+wire wb_pc_f_hazard_id_mem = (((ex_mem_reg_d == rs1_addr) |
+    (ex_mem_reg_d == rs2_addr)) & (ex_mem_reg_d != 5'b0)) & (ex_mem_mem_command != 2'b00);
 
 wire is_write;
 wire [4:0] wb_addr;
 wire [31:0] wb_data;
-wire [31:0] rs1_data;
-wire [31:0] rs2_data;
+wire [31:0] rs1_data_f_reg;
+wire [31:0] rs2_data_f_reg;
+
+// for test
 wire [31:0] gp_data;
 
 /*
@@ -47,7 +46,7 @@ reg_file reg_file(
     .rs1_addr(rs1_addr), .rs2_addr(rs2_addr), .is_write(is_write),
     .wb_addr(wb_addr), .wb_data(wb_data),
     // OUTPUT
-    .rs1_data(rs1_data), .rs2_data(rs2_data)
+    .rs1_data(rs1_data_f_reg), .rs2_data(rs2_data_f_reg)
 );
 */
 reg_file_test reg_file_test(
@@ -55,11 +54,19 @@ reg_file_test reg_file_test(
     .rs1_addr(rs1_addr), .rs2_addr(rs2_addr), .is_write(is_write),
     .wb_addr(wb_addr), .wb_data(wb_data),
     // OUTPUT
-    .rs1_data(rs1_data), .rs2_data(rs2_data), .gp_data(gp_data)
+    .rs1_data(rs1_data_f_reg), .rs2_data(rs2_data_f_reg), .gp_data(gp_data)
 );
 
+wire ex_mem_c_r = (ex_mem_reg_d != 5'b0) & (ex_mem_mem_command[1] == 1'b0);
+wire ex_mem_c_r_rs1 = (ex_mem_reg_d == rs1_addr) & ex_mem_c_r;
+wire ex_mem_c_r_rs2 = (ex_mem_reg_d == rs2_addr) & ex_mem_c_r;
+wire mem_wb_c_r = (mem_wb_reg_d != 5'b0);
+wire mem_wb_c_r_rs1 = (mem_wb_reg_d == rs1_addr) & mem_wb_c_r;
+wire mem_wb_c_r_rs2 = (mem_wb_reg_d == rs2_addr) & mem_wb_c_r;
 wire [31:0] command;
 wire [31:0] if_id_pc;
+wire [31:0] rs1_data = ex_mem_c_r_rs1 ? alu_out : (mem_wb_c_r_rs1 ? pre_wb_data : rs1_data_f_reg);
+wire [31:0] rs2_data = ex_mem_c_r_rs2 ? alu_out : (mem_wb_c_r_rs2 ? pre_wb_data : rs2_data_f_reg);
 
 fetch fetch(
     // INPUT
@@ -89,8 +96,6 @@ decode decode(
     .mem_write_data(id_ex_mem_write_data), .out_now_pc(id_ex_pc)
 );
 
-wire if_bubble_f_exe;
-wire id_bubble_f_exe;
 wire [4:0] ex_mem_mem_command;
 wire [4:0] ex_mem_reg_d;
 wire [31:0] alu_out;
@@ -104,15 +109,12 @@ execute execute(
     .ex_command_f7(ex_command_f7), .data_0(data_0), .data_1(data_1),
     .in_mem_write_data(id_ex_mem_write_data), .in_now_pc(id_ex_pc),
     // OUTPUT
-    .if_bubble(if_bubble_f_exe), .id_bubble(id_bubble_f_exe), .wb_pc(wb_pc_f_ex),
-    .out_mem_command(ex_mem_mem_command), .out_reg_d(ex_mem_reg_d), .alu_out(alu_out),
+    .wb_pc(wb_pc_f_ex),.out_mem_command(ex_mem_mem_command), 
+    .out_reg_d(ex_mem_reg_d), .alu_out(alu_out),
     .out_mem_write_data(ex_mem_mem_write_data), .out_now_pc(ex_mem_pc),
     .wb_pc_data(wb_pc_data_f_ex)
 );
 
-wire if_bubble_f_mem;
-wire id_bubble_f_mem;
-wire ex_bubble_f_mem;
 wire is_mem_write;
 wire wb_csr;
 wire [31:0] mem_mem_wb_data;
@@ -136,7 +138,6 @@ memory_access memory_access(
     .csr_exception_pc_data(csr_exception_pc_data),
     // OUTPUT
     .csr_addr(csr_addr), .mem_addr(data_mem_addr), .is_mem_write(is_mem_write),
-    .if_bubble(if_bubble_f_exe), .id_bubble(id_bubble_f_mem), .ex_bubble(ex_bubble_f_mem),
     .wb_pc(wb_pc_f_mem), .wb_csr(wb_csr),
     .out_csr_addr(write_csr_addr), .wb_pc_data(wb_pc_data_f_mem), .out_mem_addr(out_mem_addr),
     .out_mem_data(mem_mem_wb_data), .out_wb_data(pre_wb_data), .out_reg_d(mem_wb_reg_d), 
