@@ -1,13 +1,17 @@
 module core (
+    input reset,
+    input stop,
     input clk,
     input [31:0] prog_mem_data,
     input [31:0] data_mem_data,
 
+    output is_mem_write,
+    output [31:0] mem_mem_wb_data,
+    output [31:0] out_mem_addr,
     output [31:0] prog_mem_addr,
     output [31:0] data_mem_addr
 );
 
-wire stop;
 wire [4:0] rs1_addr;
 wire [4:0] rs2_addr;
 wire if_bubble = wb_pc;
@@ -40,7 +44,7 @@ wire [31:0] rs2_data_f_reg;
 
 reg_file reg_file(
     // INPUT
-    .rs1_addr(rs1_addr), .rs2_addr(rs2_addr), .is_write(is_write),
+    .reset(reset), .rs1_addr(rs1_addr), .rs2_addr(rs2_addr), .is_write(is_write),
     .wb_addr(wb_addr), .wb_data(wb_data),
     // OUTPUT
     .rs1_data(rs1_data_f_reg), .rs2_data(rs2_data_f_reg)
@@ -59,7 +63,7 @@ wire [31:0] rs2_data = ex_mem_c_r_rs2 ? alu_out : (mem_wb_c_r_rs2 ? pre_wb_data 
 
 fetch fetch(
     // INPUT
-    .clk(clk), .stop(stop), .bubble(if_bubble),
+    .reset(reset), .clk(clk), .stop(stop), .bubble(if_bubble),
     .wb_pc(wb_pc), .wb_pc_data(wb_pc_data), .data(prog_mem_data),
     // OUTPUT
     .mem_addr(prog_mem_addr), .command(command), .now_pc(if_id_pc)
@@ -104,9 +108,7 @@ execute execute(
     .wb_pc_data(wb_pc_data_f_ex)
 );
 
-wire is_mem_write;
 wire wb_csr;
-wire [31:0] mem_mem_wb_data;
 wire [4:0] mem_wb_reg_d;
 wire [31:0] mem_wb_pc;
 wire [31:0] csr_data;
@@ -115,7 +117,6 @@ wire [31:0] csr_exception_pc_data;
 wire [11:0] csr_addr;
 wire [11:0] write_csr_addr;
 wire [31:0] out_csr_data;
-wire [31:0] out_mem_addr;
 wire [31:0] pre_wb_data;
 
 memory_access memory_access(
@@ -141,7 +142,7 @@ write_back write_back(
 );
 
 // CSR
-csr csr(.wb_csr(wb_csr), .addr(csr_addr), .write_addr(write_csr_addr), .in_data(out_csr_data),
+csr csr(.reset(reset), .wb_csr(wb_csr), .addr(csr_addr), .write_addr(write_csr_addr), .in_data(out_csr_data),
         .out_data(csr_data), .out_trap_vec(csr_trap_vec_data), .out_exception_pc(csr_exception_pc_data));
 
 

@@ -1,4 +1,5 @@
 module fetch (
+    input reset,
     input clk,
     input stop,
     input bubble,
@@ -31,6 +32,13 @@ always @(posedge clk) begin
             pc <= pc;
     end
 
+    // Reset
+    else if (reset) begin
+        command <= 32'b00000000000000000000000000010011;
+        now_pc <= 32'b0;
+        pc <= 32'b0;
+    end
+
     // Normal Fetch
     else begin
         command <= data;
@@ -40,7 +48,7 @@ always @(posedge clk) begin
 end
 
 initial begin
-    pc = 32'h80000000;
+    pc = 32'h00000000;
 end
 
 endmodule

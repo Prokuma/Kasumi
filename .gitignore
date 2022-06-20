@@ -1,4 +1,5 @@
 *.vcd
 src/kasumi_test
+src/kasumi
 src/hex
 .DS_Store
