@@ -1,4 +1,5 @@
 module fifo_cache_to_main (
+    input reset,
     input read_clk,
     input write_clk,
     input [FIFO_WIDTH-1:0] write_data,
@@ -23,8 +24,17 @@ assign full = fifo_len[6];
 assign empty = (fifo_len == 6'b0);
 
 always @(posedge read_clk) begin
-    if (empty) // Empty
+    if (reset) begin
+        fifo_start <= 6'b0;
+        fifo_end <= 6'b0;
+        fifo_len <= 7'b0;
         read_data <= 32'b0;
+        read_addr <= 32'b0;
+    end
+    else if (empty) begin// Empty
+        read_data <= 32'b0;
+        read_addr <= 32'b0;
+    end
     else begin
         read_data <= fifo[fifo_start];
         read_addr <= fifo_addr[fifo_start];
@@ -46,12 +56,6 @@ always @(posedge write_clk) begin
         fifo_addr[fifo_end] <= write_addr;
         fifo_len <= fifo_len + 6'd1;
     end
-end
-
-initial begin
-    fifo_len <= 6'b0;
-    fifo_start <= 5'b0;
-    fifo_end <= 5'b0;
 end
 
 endmodule

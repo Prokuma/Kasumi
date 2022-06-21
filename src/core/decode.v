@@ -1,4 +1,5 @@
 module decode (
+    input reset,
     input clk,
     input stop,
     input bubble,
@@ -96,6 +97,15 @@ always @(posedge clk) begin
         reg_d <= 5'b0;
         mem_write_data <= 32'b0;
         ex_command_f7 <= funct7;
+    end
+
+    else if (reset) begin
+        mem_command <= 5'b0;
+        ex_command <= 6'b0;
+        data_0 <= 32'b0;
+        reg_d <= 5'b0;
+        mem_write_data <= 32'b0;
+        ex_command_f7 <= 7'b0;;
     end
 
     // Normal Decode

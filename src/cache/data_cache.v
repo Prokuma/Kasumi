@@ -1,4 +1,6 @@
 module data_cache (
+    input reset,
+    input clk,
     input is_write,
     input in_fifo_clock,
     input fifo_full,
@@ -59,6 +61,15 @@ assign cache_miss = (
    cache_miss_f_read_addr |
    cache_miss_f_read_addr_3
 );
+
+integer i;
+always @(posedge clk) begin
+    if (reset) begin
+        for (i = 0; i < ALL_OF_LINES; i = i + 1) begin
+            data_line[i][LINE_WIDTH+TOP_ADDR_WIDTH] = 0;
+        end
+    end 
+end
 
 always @(posedge is_write) begin
     if (~cache_miss) begin

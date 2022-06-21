@@ -1,4 +1,5 @@
 module memory_access (
+    input reset,
     input clk,
     input stop,
     input [4:0] in_reg_d,
@@ -42,116 +43,136 @@ assign wb_pc_data = (in_mem_write_data == 12'h0) ? csr_trap_vec_data : (
 );
 
 always @(posedge clk) begin
-    if (in_mem_command[0]) begin
-        // sb/sh/sw
-        if (in_mem_command[1:0] == 2'b11) begin
-            case (in_mem_command[4:2])
-                3'b000: begin
-                    out_mem_data[31:8] <= mem_data[31:8];
-                    out_mem_data[7:0] <= in_mem_write_data[7:0];
-                    is_mem_write <= 1'b1;
-                end
-                3'b001: begin
-                    out_mem_data[31:16] <= mem_data[31:16];
-                    out_mem_data[15:0] <= in_mem_write_data[15:0];
-                    is_mem_write <= 1'b1;
-                end
-                3'b010: begin
-                    out_mem_data <= in_mem_write_data;
-                    is_mem_write <= 1'b1;
-                end
-                default: begin
-                    out_mem_data <= mem_data;
-                    is_mem_write <= 1'b0;
-                end
-            endcase
+    if (reset) begin
+        is_mem_write <= 1'b0;
+        wb_csr <= 1'b0;
+        out_csr_addr <= 12'b0;
+        out_mem_addr <= 32'b0;
+        out_mem_data <= 32'b0;
+        out_reg_d <= 5'b0;
+        out_now_pc <= 32'b0;
+        out_csr_addr <= 32'b0;
+    end
+    else begin
+        if (stop) begin
+            out_mem_data <= mem_data;
             out_wb_data <= in_alu_out;
+            is_mem_write <= is_mem_write;
+            out_csr_data <= out_csr_data;
+            wb_csr <= wb_csr;
+            out_mem_addr <= mem_addr;
+        end
+        else if (in_mem_command[0]) begin
+            // sb/sh/sw
+            if (in_mem_command[1:0] == 2'b11) begin
+                case (in_mem_command[4:2])
+                    3'b000: begin
+                        out_mem_data[31:8] <= mem_data[31:8];
+                        out_mem_data[7:0] <= in_mem_write_data[7:0];
+                        is_mem_write <= 1'b1;
+                    end
+                    3'b001: begin
+                        out_mem_data[31:16] <= mem_data[31:16];
+                        out_mem_data[15:0] <= in_mem_write_data[15:0];
+                        is_mem_write <= 1'b1;
+                    end
+                    3'b010: begin
+                        out_mem_data <= in_mem_write_data;
+                        is_mem_write <= 1'b1;
+                    end
+                    default: begin
+                        out_mem_data <= mem_data;
+                        is_mem_write <= 1'b0;
+                    end
+                endcase
+                out_wb_data <= in_alu_out;
+            end
+
+            // lb/lh/lw/lbu/lhu
+            else if (in_mem_command[1:0] == 2'b01) begin
+                case (in_mem_command[4:2])
+                    3'b000: begin
+                        out_wb_data <= $signed(mem_data[7:0]);
+                    end
+                    3'b001: begin
+                        out_wb_data <= $signed(mem_data[15:0]);
+                    end
+                    3'b010: begin
+                        out_wb_data <= mem_data;
+                    end
+                    3'b100: begin
+                        out_wb_data <= $unsigned(mem_data[7:0]);
+                    end
+                    3'b101: begin
+                        out_wb_data <= $unsigned(mem_data[15:0]);
+                    end
+                    default: begin
+                        out_wb_data <= mem_data;
+                    end
+                endcase
+                out_mem_data <= mem_data;
+                is_mem_write <= 1'b0;
+            end
+            out_csr_data <= 32'b0;
+            wb_csr <= 1'b0;
+            out_mem_addr <= mem_addr;
         end
 
-        // lb/lh/lw/lbu/lhu
-        else if (in_mem_command[1:0] == 2'b01) begin
-            case (in_mem_command[4:2])
+        // CSR
+        else if (in_mem_command[1:0] == 2'b10) begin
+            case(in_mem_command[4:2])
                 3'b000: begin
-                    out_wb_data <= $signed(mem_data[7:0]);
+                    out_wb_data <= csr_data;
+                    out_csr_data <= in_alu_out;
                 end
                 3'b001: begin
-                    out_wb_data <= $signed(mem_data[15:0]);
+                    out_wb_data <= csr_data;
+                    out_csr_data <= in_alu_out;
                 end
                 3'b010: begin
-                    out_wb_data <= mem_data;
+                    out_wb_data <= csr_data;
+                    out_csr_data <= csr_data | in_alu_out;
                 end
-                3'b100: begin
-                    out_wb_data <= $unsigned(mem_data[7:0]);
+                3'b011: begin
+                    out_wb_data <= csr_data;
+                    out_csr_data <= csr_data & ~in_alu_out;
                 end
                 3'b101: begin
-                    out_wb_data <= $unsigned(mem_data[15:0]);
+                    out_wb_data <= csr_data;
+                    out_csr_data <= in_alu_out;
+                end
+                3'b110: begin
+                    out_wb_data <= csr_data;
+                    out_csr_data <= csr_data | in_alu_out;
+                end
+                3'b111: begin
+                    out_wb_data <= csr_data;
+                    out_csr_data <= csr_data & ~in_alu_out;
                 end
                 default: begin
-                    out_wb_data <= mem_data;
+                    out_wb_data <= 32'b0;
+                    out_csr_data <= csr_data;
                 end
             endcase
             out_mem_data <= mem_data;
             is_mem_write <= 1'b0;
+            wb_csr <= 1'b1;
+            out_mem_addr <= mem_addr;
         end
-        out_csr_data <= 32'b0;
-        wb_csr <= 1'b0;
-        out_mem_addr <= mem_addr;
-    end
 
-    // CSR
-    else if (in_mem_command[1:0] == 2'b10) begin
-        case(in_mem_command[4:2])
-            3'b000: begin
-                out_wb_data <= csr_data;
-                out_csr_data <= in_alu_out;
-            end
-            3'b001: begin
-                out_wb_data <= csr_data;
-                out_csr_data <= in_alu_out;
-            end
-            3'b010: begin
-                out_wb_data <= csr_data;
-                out_csr_data <= csr_data | in_alu_out;
-            end
-            3'b011: begin
-                out_wb_data <= csr_data;
-                out_csr_data <= csr_data & ~in_alu_out;
-            end
-            3'b101: begin
-                out_wb_data <= csr_data;
-                out_csr_data <= in_alu_out;
-            end
-            3'b110: begin
-                out_wb_data <= csr_data;
-                out_csr_data <= csr_data | in_alu_out;
-            end
-            3'b111: begin
-                out_wb_data <= csr_data;
-                out_csr_data <= csr_data & ~in_alu_out;
-            end
-            default: begin
-                out_wb_data <= 32'b0;
-                out_csr_data <= csr_data;
-            end
-        endcase
-        out_mem_data <= mem_data;
-        is_mem_write <= 1'b0;
-        wb_csr <= 1'b1;
-        out_mem_addr <= mem_addr;
-    end
+        else begin
+            out_mem_data <= mem_data;
+            out_wb_data <= in_alu_out;
+            is_mem_write <= 1'b0;
+            out_csr_data <= 32'b0;
+            wb_csr <= 1'b0;
+            out_mem_addr <= mem_addr;
+        end
 
-    else begin
-        out_mem_data <= mem_data;
-        out_wb_data <= in_alu_out;
-        is_mem_write <= 1'b0;
-        out_csr_data <= 32'b0;
-        wb_csr <= 1'b0;
-        out_mem_addr <= mem_addr;
+        out_csr_addr <= csr_addr;
+        out_reg_d <= in_reg_d;
+        out_now_pc <= in_now_pc;
     end
-
-    out_csr_addr <= csr_addr;
-    out_reg_d <= in_reg_d;
-    out_now_pc <= in_now_pc;
 end
 
 endmodule

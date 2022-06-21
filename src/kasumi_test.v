@@ -88,7 +88,7 @@ wire [31:0] id_ex_pc;
 
 decode decode(
     //INPUT
-    .clk(clk), .stop(stop), .bubble(id_bubble), .rs1_data(rs1_data),
+    .reset(reset), .clk(clk), .stop(stop), .bubble(id_bubble), .rs1_data(rs1_data),
     .rs2_data(rs2_data), .in_now_pc(if_id_pc), .command(command),
     // OUTPUT
     .rs1_addr(rs1_addr), .rs2_addr(rs2_addr), .reg_d(id_ex_reg_d), 
@@ -105,7 +105,7 @@ wire [31:0] ex_mem_pc;
 
 execute execute(
     // INPUT
-    .clk(clk), .stop(stop), .bubble(ex_bubble), .in_reg_d(id_ex_reg_d),
+    .reset(reset), .clk(clk), .stop(stop), .bubble(ex_bubble), .in_reg_d(id_ex_reg_d),
     .in_mem_command(id_ex_mem_command), .ex_command(ex_command),
     .ex_command_f7(ex_command_f7), .data_0(data_0), .data_1(data_1),
     .in_mem_write_data(id_ex_mem_write_data), .in_now_pc(id_ex_pc),
@@ -132,7 +132,7 @@ wire [31:0] pre_wb_data;
 
 memory_access memory_access(
     // INPUT
-    .clk(clk), .stop(stop), .in_reg_d(ex_mem_reg_d), 
+    .reset(reset), .clk(clk), .stop(stop), .in_reg_d(ex_mem_reg_d), 
     .in_mem_command(ex_mem_mem_command), .in_alu_out(alu_out),
     .in_mem_write_data(ex_mem_mem_write_data), .in_now_pc(ex_mem_pc),
     .mem_data(data_mem_data), .csr_data(csr_data), .csr_trap_vec_data(csr_trap_vec_data),

@@ -37,6 +37,7 @@ wire cache_miss;
 
 cache cache(
     // INPUT
+    .reset(reset),
     .cache_clk(clk), .main_clk(dram_clk), .is_write(is_write), .write_data(write_data),
     .write_addr(write_addr), .prog_mem_addr(prog_mem_addr), .data_mem_addr(data_mem_addr),
     .read_main_prog_data(read_prog_data), .read_main_data_data(read_data_data),

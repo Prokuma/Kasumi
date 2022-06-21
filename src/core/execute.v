@@ -1,4 +1,5 @@
 module execute (
+    input reset,
     input clk,
     input stop,
     input bubble,
@@ -98,6 +99,14 @@ always @(posedge clk) begin
         out_mem_write_data <= 32'b0;
         out_reg_d <= 6'b0;
         out_now_pc <= in_now_pc;
+    end
+
+    else if (reset) begin
+        alu_out <= 32'b0;
+        out_mem_command <= 5'b0;
+        out_mem_write_data <= 32'b0;
+        out_reg_d <= 6'b0;
+        out_now_pc <= 32'b0;
     end
 
     // Normal Execution
