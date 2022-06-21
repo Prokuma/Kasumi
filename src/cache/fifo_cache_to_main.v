@@ -23,21 +23,35 @@ assign full = fifo_len[6];
 assign empty = (fifo_len == 6'b0);
 
 always @(posedge read_clk) begin
-    if (fifo_end == fifo_start) // Empty
+    if (empty) // Empty
         read_data <= 32'b0;
     else begin
         read_data <= fifo[fifo_start];
         read_addr <= fifo_addr[fifo_start];
-        fifo_start <= fifo_start + 5'd1;
         fifo_len <= fifo_len - 6'b1;
+        if (fifo_len != 6'd1)
+            fifo_start <= fifo_start + 5'd1;
     end
 end
 
 always @(posedge write_clk) begin
-    if (~fifo_len[6]) // is not full
+    if (~full & ~empty) begin// is not full & is not empty
         fifo[fifo_end+1] <= write_data;
         fifo_addr[fifo_end+1] <= write_addr;
         fifo_end <= fifo_end + 5'd1;
+        fifo_len <= fifo_len + 6'd1;
+    end
+    else if (~full & empty) begin
+        fifo[fifo_end] <= write_data;
+        fifo_addr[fifo_end] <= write_addr;
+        fifo_len <= fifo_len + 6'd1;
+    end
+end
+
+initial begin
+    fifo_len <= 6'b0;
+    fifo_start <= 5'b0;
+    fifo_end <= 5'b0;
 end
 
 endmodule

@@ -1,6 +1,9 @@
 module prog_cache (
     input is_write,
     input in_fifo_clock,
+    input fifo_full,
+    input fifo_empty,
+    input [7:0] fifo_addr,
     input [31:0] read_addr,
     input [31:0] write_addr,
     input [31:0] write_data,
@@ -29,7 +32,6 @@ parameter ALL_OF_LINES = NUM_OF_BLOCKS * BLOCK_OF_LINES;
 */
 
 reg [LINE_WIDTH+TOP_ADDR_WIDTH:0] data_line[0:ALL_OF_LINES-1];
-reg [6:0] read_fifo_count;
 
 wire [31:0] write_addr_1 = write_addr + 1;
 wire [31:0] write_addr_2 = write_addr + 2;
@@ -86,15 +88,13 @@ always @(posedge cache_miss_f_read_addr_3) begin
 end
 
 always @(posedge in_fifo_clock) begin
-    if (read_fifo_count[6] == 1'b0) begin
-        data_line[req_addr+read_fifo_count] <= read_line_data;
-        data_line[req_addr+read_fifo_count][TOP_ADDR_WIDTH+LINE_WIDTH-1:LINE_WIDTH] <= req_addr;
-        data_line[req_addr+read_fifo_count][TOP_ADDR_WIDTH+LINE_WIDTH] <= 1'b1;
-        read_fifo_count <= read_fifo_count + 6'b1;
+    if (~fifo_empty) begin
+        data_line[fifo_addr][LINE_WIDTH-1:0] <= read_line_data;
+        data_line[fifo_addr][TOP_ADDR_WIDTH+LINE_WIDTH-1:LINE_WIDTH] <= req_addr;
+        data_line[fifo_addr][TOP_ADDR_WIDTH+LINE_WIDTH] <= 1'b1;
     end
     else begin
         is_req <= 1'b1 & cache_miss;
-        read_fifo_count <= 6'b0;
     end
 end
 
