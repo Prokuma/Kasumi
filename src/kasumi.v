@@ -4,6 +4,8 @@ module kasumi(
     input dram_clk,
     input [511:0] read_prog_data,
     input [511:0] read_data_data,
+    input [7:0] read_prog_addr,
+    input [7:0] read_data_addr,
     
     output is_req_f_prog,
     output is_req_f_data,
@@ -38,6 +40,7 @@ cache cache(
     .cache_clk(clk), .main_clk(dram_clk), .is_write(is_write), .write_data(write_data),
     .write_addr(write_addr), .prog_mem_addr(prog_mem_addr), .data_mem_addr(data_mem_addr),
     .read_main_prog_data(read_prog_data), .read_main_data_data(read_data_data),
+    .read_main_prog_addr(read_prog_addr), .read_main_data_addr(read_data_addr)
 
     // OUTPUT
     .cache_miss(cache_miss), .prog_mem_data(prog_mem_data), .data_mem_data(data_mem_data),
