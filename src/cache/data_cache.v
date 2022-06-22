@@ -66,7 +66,7 @@ integer i;
 always @(posedge clk) begin
     if (reset) begin
         for (i = 0; i < ALL_OF_LINES; i = i + 1) begin
-            data_line[i][LINE_WIDTH+TOP_ADDR_WIDTH] = 0;
+            data_line[i][LINE_WIDTH+TOP_ADDR_WIDTH] <= 0;
         end
     end 
 end

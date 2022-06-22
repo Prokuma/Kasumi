@@ -21,8 +21,8 @@ always @(*) begin
     if (reset) begin
         for(i = 0; i < 4096; i = i + 1) begin
             case(i)
-                12'h301: csr_register[i] = 32'b01_0000_0000000000000000100000000;
-                default: csr_register[i] = 32'b0;
+                12'h301: csr_register[i] <= 32'b01_0000_0000000000000000100000000;
+                default: csr_register[i] <= 32'b0;
             endcase
         end
     end
