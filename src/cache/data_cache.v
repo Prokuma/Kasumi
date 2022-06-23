@@ -23,7 +23,7 @@ parameter BLOCK_OF_LINES = 64;
 parameter LINE_BIT_WIDTH = 6;
 parameter LINE_WIDTH = 512;
 parameter CELL_WIDTH = 6;
-parameter TOP_ADDR_WIDTH = 32 - NUM_OF_BLOCKS - BLOCK_BIT_WIDTH - LINE_BIT_WIDTH - CELL_WIDTH;
+parameter TOP_ADDR_WIDTH = 32 - BLOCK_BIT_WIDTH - LINE_BIT_WIDTH - CELL_WIDTH;
 parameter ALL_OF_LINES = NUM_OF_BLOCKS * BLOCK_OF_LINES;
 /*
     [31:14] TOP_ADDR
@@ -49,11 +49,11 @@ assign read_data = {
     data_line[read_addr[13:6]][{4'b0, read_addr[5:0]} << 4 +: 8]
 };
 
-wire cache_miss_f_write_addr = (data_line[write_addr[13:6]][530:512] != write_addr[31:14]) | ~(data_line[write_addr[13:0]][531]);
-wire cache_miss_f_write_addr_3 = (data_line[write_addr_3[13:6]][530:512] != write_addr_3[31:14]) | ~(data_line[write_addr_3[13:0]][531]);
+wire cache_miss_f_write_addr = (data_line[write_addr[13:6]][529:512] != write_addr[31:14]) | ~(data_line[write_addr[13:0]][530]);
+wire cache_miss_f_write_addr_3 = (data_line[write_addr_3[13:6]][529:512] != write_addr_3[31:14]) | ~(data_line[write_addr_3[13:0]][530]);
 
-wire cache_miss_f_read_addr = (data_line[read_addr[13:6]][530:512] != read_addr[31:14]) | ~(data_line[read_addr[13:0]][531]);
-wire cache_miss_f_read_addr_3 = (data_line[read_addr_3[13:6]][530:512] != read_addr_3[31:14]) | ~(data_line[read_addr_3[13:0]][531]);
+wire cache_miss_f_read_addr = (data_line[read_addr[13:6]][529:512] != read_addr[31:14]) | ~(data_line[read_addr[13:0]][530]);
+wire cache_miss_f_read_addr_3 = (data_line[read_addr_3[13:6]][529:512] != read_addr_3[31:14]) | ~(data_line[read_addr_3[13:0]][530]);
 
 assign cache_miss = (
    cache_miss_f_write_addr |
