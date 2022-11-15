@@ -87,6 +87,7 @@ always @(posedge clk) begin
         reg_d <= reg_d;
         mem_write_data <= mem_write_data;
         ex_command_f7 <= ex_command_f7;
+        out_now_pc <= out_now_pc;
     end
 
     // Pipeline Bubble(addi x0, x0, 0)
@@ -97,6 +98,7 @@ always @(posedge clk) begin
         reg_d <= 5'b0;
         mem_write_data <= 32'b0;
         ex_command_f7 <= funct7;
+        out_now_pc <= in_now_pc;
     end
 
     else if (reset) begin
@@ -105,7 +107,8 @@ always @(posedge clk) begin
         data_0 <= 32'b0;
         reg_d <= 5'b0;
         mem_write_data <= 32'b0;
-        ex_command_f7 <= 7'b0;;
+        ex_command_f7 <= 7'b0;
+        out_now_pc <= 32'b0;
     end
 
     // Normal Decode
@@ -249,9 +252,8 @@ always @(posedge clk) begin
             end
         endcase
         ex_command_f7 <= funct7;
+        out_now_pc <= in_now_pc;
     end
-
-    out_now_pc <= in_now_pc;
 end
 
 endmodule

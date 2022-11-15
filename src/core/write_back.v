@@ -1,8 +1,6 @@
 module write_back(
-    input clk,
     input [4:0] reg_d,
     input [31:0] in_wb_data,
-    input [31:0] now_pc,
 
     output is_write, 
     output [4:0] out_wb_addr,
