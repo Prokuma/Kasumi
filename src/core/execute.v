@@ -1,4 +1,5 @@
 module execute (
+    input reset,
     input clk,
     input stop,
     input bubble,
@@ -33,7 +34,6 @@ module execute (
     output reg [4:0] out_reg_d,
     output reg [31:0] alu_out, 
     output reg [31:0] out_mem_write_data,
-    output reg [31:0] out_now_pc,
     output [31:0] wb_pc_data
 );
 
@@ -46,13 +46,6 @@ wire lt_data_unsigned = ($unsigned(data_0) < $unsigned(data_1));
 
 wire [3:0] pred = data_1[3:0];
 wire [3:0] succ = data_1[7:4];
-
-assign wb_pc = jmp_f_b | jmp_f_f | jmp_f_j;
-assign wb_pc_data = jmp_f_b ? wb_pc_data_f_b : (
-    jmp_f_f ? wb_pc_data_f_f : (
-        jmp_f_j ? wb_pc_data_f_j : 32'b0
-    )
-);
 
 // beq/bge/begu/blt/bltu/bne
 wire jmp_f_b = (ex_command[5:3] != 3'b010) ? 1'b0 : (
@@ -81,6 +74,13 @@ wire [31:0] wb_pc_data_f_j = (ex_command[2:0] == 3'b000) ? (in_now_pc + data_1) 
     (ex_command[2:0] == 3'b001) ? ((data_0 + data_1) & 32'b11111111111111111111111111111110) : 32'b0
 );
 
+assign wb_pc = jmp_f_b | jmp_f_f | jmp_f_j;
+assign wb_pc_data = jmp_f_b ? wb_pc_data_f_b : (
+    jmp_f_f ? wb_pc_data_f_f : (
+        jmp_f_j ? wb_pc_data_f_j : 32'b0
+    )
+);
+
 always @(posedge clk) begin
     // Stop(pause) CPU
     if (stop) begin
@@ -88,7 +88,6 @@ always @(posedge clk) begin
         out_mem_command <= out_mem_command;
         out_mem_write_data <= out_mem_write_data;
         out_reg_d <= out_reg_d;
-        out_now_pc <= out_now_pc;
     end
 
     // Pipeline Bubble (addi x0, x0, 0)
@@ -97,7 +96,13 @@ always @(posedge clk) begin
         out_mem_command <= 5'b0;
         out_mem_write_data <= 32'b0;
         out_reg_d <= 6'b0;
-        out_now_pc <= in_now_pc;
+    end
+
+    else if (reset) begin
+        alu_out <= 32'b0;
+        out_mem_command <= 5'b0;
+        out_mem_write_data <= 32'b0;
+        out_reg_d <= 6'b0;
     end
 
     // Normal Execution
@@ -187,7 +192,6 @@ always @(posedge clk) begin
         out_mem_command <= in_mem_command;
         out_mem_write_data <= in_mem_write_data;
         out_reg_d <= in_reg_d;
-        out_now_pc <= in_now_pc;
     end
 end
 

@@ -1,6 +1,7 @@
 module kasumi_test;
 localparam MAX_STEP = 10000;
 reg clk;
+wire reset = 1'b0;
 wire [31:0] prog_mem_addr;
 wire [31:0] prog_mem_data;
 wire [31:0] data_mem_addr;
@@ -51,7 +52,7 @@ reg_file reg_file(
 */
 reg_file_test reg_file_test(
     // INPUT
-    .rs1_addr(rs1_addr), .rs2_addr(rs2_addr), .is_write(is_write),
+    .reset(reset), .rs1_addr(rs1_addr), .rs2_addr(rs2_addr), .is_write(is_write),
     .wb_addr(wb_addr), .wb_data(wb_data),
     // OUTPUT
     .rs1_data(rs1_data_f_reg), .rs2_data(rs2_data_f_reg), .gp_data(gp_data)
@@ -70,7 +71,7 @@ wire [31:0] rs2_data = ex_mem_c_r_rs2 ? alu_out : (mem_wb_c_r_rs2 ? pre_wb_data 
 
 fetch fetch(
     // INPUT
-    .clk(clk), .stop(stop), .bubble(if_bubble),
+    .reset(reset), .clk(clk), .stop(stop), .bubble(if_bubble),
     .wb_pc(wb_pc), .wb_pc_data(wb_pc_data), .data(prog_mem_data),
     // OUTPUT
     .mem_addr(prog_mem_addr), .command(command), .now_pc(if_id_pc)
@@ -87,7 +88,7 @@ wire [31:0] id_ex_pc;
 
 decode decode(
     //INPUT
-    .clk(clk), .stop(stop), .bubble(id_bubble), .rs1_data(rs1_data),
+    .reset(reset), .clk(clk), .stop(stop), .bubble(id_bubble), .rs1_data(rs1_data),
     .rs2_data(rs2_data), .in_now_pc(if_id_pc), .command(command),
     // OUTPUT
     .rs1_addr(rs1_addr), .rs2_addr(rs2_addr), .reg_d(id_ex_reg_d), 
@@ -104,7 +105,7 @@ wire [31:0] ex_mem_pc;
 
 execute execute(
     // INPUT
-    .clk(clk), .stop(stop), .bubble(ex_bubble), .in_reg_d(id_ex_reg_d),
+    .reset(reset), .clk(clk), .stop(stop), .bubble(ex_bubble), .in_reg_d(id_ex_reg_d),
     .in_mem_command(id_ex_mem_command), .ex_command(ex_command),
     .ex_command_f7(ex_command_f7), .data_0(data_0), .data_1(data_1),
     .in_mem_write_data(id_ex_mem_write_data), .in_now_pc(id_ex_pc),
@@ -131,7 +132,7 @@ wire [31:0] pre_wb_data;
 
 memory_access memory_access(
     // INPUT
-    .clk(clk), .stop(stop), .in_reg_d(ex_mem_reg_d), 
+    .reset(reset), .clk(clk), .stop(stop), .in_reg_d(ex_mem_reg_d), 
     .in_mem_command(ex_mem_mem_command), .in_alu_out(alu_out),
     .in_mem_write_data(ex_mem_mem_write_data), .in_now_pc(ex_mem_pc),
     .mem_data(data_mem_data), .csr_data(csr_data), .csr_trap_vec_data(csr_trap_vec_data),
@@ -152,7 +153,7 @@ write_back write_back(
 );
 
 // CSR
-csr csr(.wb_csr(wb_csr), .addr(csr_addr), .write_addr(write_csr_addr), .in_data(out_csr_data),
+csr csr(.reset(reset), .wb_csr(wb_csr), .addr(csr_addr), .write_addr(write_csr_addr), .in_data(out_csr_data),
         .out_data(csr_data), .out_trap_vec(csr_trap_vec_data), .out_exception_pc(csr_exception_pc_data));
 
 // TEST MEM
