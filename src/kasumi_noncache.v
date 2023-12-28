@@ -9,7 +9,7 @@ module kasumi_noncache(
 
     output reg_write,
     output [31:0] write_reg_data,
-    output [31:0] reg_addr,
+    output [31:0] reg_addr
 );
 
 wire [31:0] prog_mem_addr;
@@ -38,8 +38,8 @@ wire write_data = load ? load_data : data_mem_data;
 integrated_mem mem(
     .reset(reset | reset_sys), .clk(clk), .is_write(is_mem_write | load), .funct3(funct3), .write_data(write_data),
     .write_addr(write_addr), .prog_mem_addr(prog_mem_addr), .data_mem_addr(data_mem_addr),
-    .is_writing_now(is_writing_now), .prog_mem_data(prog_mem_data), .data_mem_data(data_mem_data)
+    .is_writing_now(is_writing_now), .prog_mem_data(prog_mem_data), .data_mem_data(data_mem_data),
     .reg_addr(reg_addr), .reg_data(reg_data), .reg_write(reg_write), .write_reg_data(write_reg_data)
-)
+);
 
 endmodule

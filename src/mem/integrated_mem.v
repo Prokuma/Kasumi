@@ -16,12 +16,12 @@ module integrated_mem(
     output [31:0] write_reg_data
 );
 
-is_writing_now = is_write_prog;
-reg_addr = data_mem_addr[14:0];
+wire is_writing_now = is_write_prog;
+wire [31:0] reg_addr = data_mem_addr[14:0];
 
 wire is_reg = data_mem_addr[14];
-wire data_mem_data = is_reg ? reg_data : mem_data_mem_data;
-wire mem_data_mem_data;
+wire [31:0] data_mem_data = is_reg ? reg_data : mem_data_mem_data;
+wire [31:0] mem_data_mem_data;
 wire is_write_prog = is_write & ~data_mem_addr[13];
 
 mem prog_mem(

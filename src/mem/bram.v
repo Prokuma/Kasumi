@@ -50,7 +50,7 @@ wire [7:0] ram3_ptr = (addr_3[1:0] == 2'b00) ? ram0[addr_3[10:2]] : (
 wire is_ram0 = addr[1:0] == 2'b00;
 wire is_ram1 = (addr[1:0] == 2'b01) || (funct3[1] == 1'b1) || (funct3[0] == 1'b1);
 wire is_ram2 = (addr[1:0] == 2'b10) || (funct3[0] == 1'b1);
-wire is_ram3 = (addr[1:0] == 2'b11) || (funct3[1] == 1'b1) || (funct3[0] == 1'b1)
+wire is_ram3 = (addr[1:0] == 2'b11) || (funct3[1] == 1'b1) || (funct3[0] == 1'b1);
 
 integer i;
 always @(posedge clk) begin
